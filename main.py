@@ -24,40 +24,59 @@ async def on_ready():
     print(f'We have logged in as {bot.user}')
 
 # Snipe functionality.
-snipe_message_content = None
-snipe_message_author = None
-snipe_message_id = None
-snipe_message_time = None
+snipe_message = None
 
 @bot.event
 async def on_message_delete(message):
-    global snipe_message_content
-    global snipe_message_author
-    global snipe_message_id
-    global snipe_message_time
-
-    snipe_message_content = message.content
-    snipe_message_author = message.author.id
-    snipe_message_id = message.id
-    snipe_message_time = message.created_at
+    global snipe_message
+    snipe_message = message
 
     await asyncio.sleep(60)
 
-    if message.id == snipe_message_id:
-        snipe_message_author = None
-        snipe_message_content = None
-        snipe_message_id = None
-        snipe_message_time = None
+    if message.id == snipe_message.id:
+        snipe_message = None
 
 @bot.command(name = 'snipe')
 async def snipe(ctx):
     try:
-        user = bot.get_user(snipe_message_author)
+        user = bot.get_user(snipe_message.author.id)
         snipeEmbed = discord.Embed(
-            description = snipe_message_content, 
+            description = snipe_message.content, 
             color = 0x00ff00,
-            timestamp=snipe_message_time
+            timestamp=snipe_message.created_at
             )
+        snipeEmbed.set_author(name = f'{user.global_name}', icon_url = user.avatar.url)
+        await ctx.send(embed = snipeEmbed)
+    except:
+        await ctx.send(f'There\'s nothing to snipe!')
+
+# Edit functionality.
+before_message = None
+after_message = None
+
+@bot.event
+async def on_message_edit(before, after):
+    global before_message
+    global after_message
+    before_message = before
+    after_message = after
+
+    await asyncio.sleep(60)
+
+    if after.id == after_message.id:
+        before_message = None
+        after_message = None
+
+@bot.command(name = 'editsnipe')
+async def editsnipe(ctx):
+    try:
+        user = bot.get_user(after_message.author.id)
+        snipeEmbed = discord.Embed( 
+            color = 0x00ff00,
+            timestamp=after_message.created_at
+            )
+        snipeEmbed.add_field(name = 'Before', value = before_message.content, inline = False)
+        snipeEmbed.add_field(name = 'After', value = after_message.content, inline = False)
         snipeEmbed.set_author(name = f'{user.global_name}', icon_url = user.avatar.url)
         await ctx.send(embed = snipeEmbed)
     except:
