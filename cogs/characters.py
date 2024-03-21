@@ -1,14 +1,16 @@
+import os
+from dotenv import load_dotenv
+
 from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 
 import discord
 from discord.ext import commands
 from discord import app_commands
 
-uri = "mongodb+srv://admin:N0P@ssw0rd@genshincb.migrwhh.mongodb.net/?retryWrites=true&w=majority&appName=genshinCB"
+uri = "mongodb+srv://admin:N0P@ssw0rd@vajrabot.eqvlech.mongodb.net/?retryWrites=true&w=majority&appName=vajrabot"
 
 # Create a new client and connect to the server
-client = MongoClient(uri, server_api=ServerApi('1'))
+client = MongoClient(uri)
 
 # Send a ping to confirm a successful connection
 try:
