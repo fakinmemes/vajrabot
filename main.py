@@ -1,104 +1,72 @@
 import os
 import asyncio
 from dotenv import load_dotenv
+from colorama import Fore, Back, Style
+import time
+import platform
 
 import discord
 from discord.ext import commands
+from discord import app_commands
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
-# Import intents and create the bot here
+prfx = (Back.BLACK + Fore.GREEN + time.strftime("%H:%M:%S") + Back.RESET + Fore.WHITE + Style.BRIGHT)
 
-intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
+# Import intents and create the bot here
+intents = discord.Intents.all()
 
 bot = commands.Bot(command_prefix='?',intents=intents)
 
-# Bot code goes here
+# Load Cogs goes here
+async def load_cogs():
+    for filename in os.listdir('./cogs'):
+        if filename.endswith('.py'):
+            await bot.load_extension(f'cogs.{filename[:-3]}')
+            print(prfx + " Loaded " + Fore.YELLOW + filename[:-3])
+
+async def main():
+    await load_cogs()
+    await bot.start(TOKEN)
+
+# Sync
+    
+@bot.tree.command(name="sync", description="Syncs all the latest commands.")
+async def sync(interaction: discord.Interaction):
+    print(prfx + " Attempting to Sync Commands...")
+    if interaction.user.id == 140026874804830208:
+        await bot.tree.sync()
+        print(prfx + " synced " + Fore.YELLOW + len(bot.commands) + " commands")
+    else:
+        await interaction.response.send_message("You are not allowed to use this command.", ephemeral=True)
+
+@bot.command(name="sync")
+async def sync(ctx):
+    print(prfx + " Attempting to Sync Commands...")
+    if ctx.author.id == 140026874804830208:
+        await bot.tree.sync(guild=ctx.guild)
+        print(prfx + " synced " + Fore.YELLOW + len(bot.commands) + " commands")
+        await ctx.send("Synced " + len(bot.commands) + " commands.")
+    else:
+        await ctx.send("You are not allowed to use this command.")
+
+@bot.tree.command(name="reload", description="Reloads a cog.")
+@app_commands.describe(cog="The cog to reload.")
+async def reload(interaction: discord.Interaction, cog: str):
+    if interaction.user.id == 140026874804830208:
+        bot.reload_extension(f'cogs.{cog}')
+        print(prfx + " Reloaded " + Fore.YELLOW + cog)
+    else:
+        await interaction.response.send_message("You are not allowed to use this command.", ephemeral=True)
 
 # Ready on launch.
 @bot.event
 async def on_ready():
-    print(f'We have logged in as {bot.user}')
-
-# Snipe functionality.
-snipe_message = None
-
-@bot.event
-async def on_message_delete(message):
-    global snipe_message
-    snipe_message = message
-
-    await asyncio.sleep(60)
-
-    if message.id == snipe_message.id:
-        snipe_message = None
-
-@bot.command(name = 'snipe')
-async def snipe(ctx):
-    try:
-        user = bot.get_user(snipe_message.author.id)
-        snipeEmbed = discord.Embed(
-            description = snipe_message.content, 
-            color = 0x00ff00,
-            timestamp=snipe_message.created_at
-            )
-        snipeEmbed.set_author(name = f'{user.global_name}', icon_url = user.avatar.url)
-        await ctx.send(embed = snipeEmbed)
-    except:
-        await ctx.send(f'There\'s nothing to snipe!')
-
-# Edit functionality.
-before_message = None
-after_message = None
-
-@bot.event
-async def on_message_edit(before, after):
-    global before_message
-    global after_message
-    before_message = before
-    after_message = after
-
-    await asyncio.sleep(60)
-
-    if after.id == after_message.id:
-        before_message = None
-        after_message = None
-
-@bot.command(name = 'editsnipe')
-async def editsnipe(ctx):
-    try:
-        user = bot.get_user(after_message.author.id)
-        snipeEmbed = discord.Embed( 
-            color = 0x00ff00,
-            timestamp=after_message.created_at
-            )
-        snipeEmbed.add_field(name = 'Before', value = before_message.content, inline = False)
-        snipeEmbed.add_field(name = 'After', value = after_message.content, inline = False)
-        snipeEmbed.set_author(name = f'{user.global_name}', icon_url = user.avatar.url)
-        await ctx.send(embed = snipeEmbed)
-    except:
-        await ctx.send(f'There\'s nothing to snipe!')
-
-# Test functionality.
-@bot.command(name = 'test')
-async def test(ctx, *args):
-    arguments = ', '.join(args)
-    await ctx.send(f'{len(args)} arguments: {arguments}')
-
-# Reaction messages functionality.
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-    match message.content:
-        case 'poggers':
-            await message.channel.send('https://cdn.discordapp.com/attachments/462268118132064256/1174379584238665838/bajira.png?ex=65676137&is=6554ec37&hm=dc4f5678391d0a440de75f89c731044e01fbdf2414310f150514993fb935f283&')
-
-    await bot.process_commands(message)
+    print(prfx + " Logged in as " + Fore.YELLOW + bot.user.name)
+    print(prfx + " Bot ID " + Fore.YELLOW + str(bot.user.id))
+    print(prfx + " Discord.py Version " + Fore.YELLOW + discord.__version__)
+    print(prfx + " Python Version " + Fore.YELLOW + str(platform.python_version()))    
         
 # Run bot
-
-bot.run(TOKEN)
+asyncio.run(main())
