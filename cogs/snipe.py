@@ -40,7 +40,7 @@ class SnipeCommands(commands.Cog):
 
         await asyncio.sleep(60)
 
-        if after.id == self.after_message.id:
+        if after.id == self.after_message.id and self.after_message:
             self.before_message = None
             self.after_message = None
 
