@@ -32,14 +32,13 @@ async def main():
     await bot.start(TOKEN)
 
 # Sync
-    
 @bot.tree.command(name="sync", description="Syncs all the latest commands.")
 async def sync(interaction: discord.Interaction):
     print(prfx + " Attempting to Sync Commands...")
     if interaction.user.id == 140026874804830208:
         await bot.tree.sync()
         print(f"{prfx} synced {Fore.YELLOW}{len(bot.commands)} commands")
-        await interaction.response.send_message(f"Synced {len(bot.commands)} commands.")
+        await interaction.response.send_message(f"Synced {len(bot.commands)} commands.", ephemeral=True)
     else:
         await interaction.response.send_message("You are not allowed to use this command.", ephemeral=True)
 

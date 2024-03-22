@@ -18,9 +18,9 @@ class Basic(commands.Cog):
             try:
                 await self.bot.reload_extension(f'cogs.{cog}')
                 print(f"{self.prfx} Reloaded {Fore.YELLOW}cog")
-                await interaction.response.send_message(f"Reloaded {cog}.")
+                await interaction.response.send_message(f"Reloaded {cog}.", ephemeral=True)
             except commands.ExtensionNotLoaded:
-                await interaction.response.send_message(f"{cog} is not loaded or does not exist.")
+                await interaction.response.send_message(f"{cog} is not loaded or does not exist.", ephemeral=True)
         else:
             await interaction.response.send_message("You are not allowed to use this command.", ephemeral=True)
 
@@ -31,13 +31,11 @@ class Basic(commands.Cog):
             try:
                 await self.bot.load_extension(f'cogs.{cog}')
                 print(f"{self.prfx} Loaded {Fore.YELLOW}cog")
-                await interaction.response.send_message(f"Loaded {cog}.")
+                await interaction.response.send_message(f"Loaded {cog}.", ephemeral=True)
             except commands.ExtensionAlreadyLoaded:
-                await interaction.response.send_message(f"{cog} is already loaded.")
+                await interaction.response.send_message(f"{cog} is already loaded.", ephemeral=True)
             except commands.ExtensionNotFound:
-                await interaction.response.send_message(f"{cog} does not exist.")
-
-            
+                await interaction.response.send_message(f"{cog} does not exist.", ephemeral=True)
         else:
             await interaction.response.send_message("You are not allowed to use this command.", ephemeral=True)
 
