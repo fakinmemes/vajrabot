@@ -18,3 +18,10 @@ try:
     print("Pinged your deployment. You successfully connected to MongoDB!")
 except Exception as e:
     print(e)
+
+class Characters(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+async def setup(bot):
+    await bot.add_cog(Characters(bot))
