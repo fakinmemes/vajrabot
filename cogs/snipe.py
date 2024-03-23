@@ -39,10 +39,10 @@ class SnipeCommands(commands.Cog):
         self.after_message = after
 
         await asyncio.sleep(60)
-
-        if after.id == self.after_message.id and self.after_message:
-            self.before_message = None
-            self.after_message = None
+        if self.after_message:
+            if after.id == self.after_message.id:
+                self.before_message = None
+                self.after_message = None
 
     @commands.command(name='editsnipe')
     async def editsnipe(self, ctx):

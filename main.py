@@ -4,20 +4,32 @@ from dotenv import load_dotenv
 from colorama import Fore, Back, Style
 import time
 import platform
+import urllib.parse
 
 import discord
 from discord.ext import commands
 from discord import app_commands
+from pymongo import MongoClient
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+username = os.getenv('MONGO_USERNAME')
+password = os.getenv('MONGO_PASSWORD')
+username = urllib.parse.quote_plus(username)
+password = urllib.parse.quote_plus(password)
 
+uri = f"mongodb+srv://{username}:{password}@vajrabot.eqvlech.mongodb.net/?retryWrites=true&w=majority&appName=vajrabot"
 prfx = (Back.BLACK + Fore.GREEN + time.strftime("%H:%M:%S") + Back.RESET + Fore.WHITE + Style.BRIGHT)
 
 # Import intents and create the bot here
 intents = discord.Intents.all()
 
-bot = commands.Bot(command_prefix='?',intents=intents)
+class VajraBot(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix='?',intents=intents)
+        self.client = MongoClient(uri)
+        
+bot = VajraBot()
 
 # Load Cogs goes here
 async def load_cogs():
